@@ -1,7 +1,8 @@
 <script setup>
 import {computed,ref} from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router,Link } from '@inertiajs/vue3';
 const {USERS,AUTH,CONVERSATION} = defineProps({USERS:Object,AUTH:Object,CONVERSATION:Object})
+const emit = defineEmits(['update-conversation']);
 
 // search users in modal
 const searchText = ref(null);
@@ -15,6 +16,11 @@ const filteredUsers = computed(()=>{
         return USERS
     })
 
+// conversation
+
+// access modal
+const my_modal_1 = ref(null);
+
 
 const CreateConversation = (user) => {
     const conversation = {
@@ -23,8 +29,15 @@ const CreateConversation = (user) => {
         participantTwo: AUTH.user.id,
         last_message: 'Hi'
     }
-
+    // close modal
+    my_modal_1.value.close();
     router.post("/conversation",conversation);
+}
+
+
+// update conversation
+const updateConversation = (conversation)=>{
+    emit('update-conversation',conversation);
 }
 </script>
 
@@ -58,7 +71,7 @@ const CreateConversation = (user) => {
         </div>
 
 
-        <dialog id="my_modal_1" class="modal">
+        <dialog id="my_modal_1" class="modal" ref="my_modal_1" >
                 <div class="modal-box">
                   <div class="body p-2 h-80 ">
                     <input type="text" v-model="searchText" placeholder="Search a user..." class="input input-bordered w-full rounded mb-2" />
@@ -72,9 +85,9 @@ const CreateConversation = (user) => {
                     </ul>
                   </div>
                   <div class="modal-action">
-                    <form method="dialog">
+                    <form method="dialog" >
                       <!-- if there is a button in form, it will close the modal -->
-                      <button class="btn w-[150px]">Close</button>
+                      <button class="btn w-[150px]" ref="my_modal_1_close_btn">Close</button>
                     </form>
                   </div>
                 </div>
@@ -84,16 +97,17 @@ const CreateConversation = (user) => {
 
         <ul class="overflow-auto">
             <li>
-                <a
+                <Link :href="route('get.messages',con.id)"
                     class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none"
                     v-for="(con,index) in CONVERSATION" :key="index"
+                    @click="updateConversation(con)"
                     >
                     <img
                         class="object-cover w-10 h-10 rounded-full"
                         src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg"
                         alt="username"
                     />
-                    <div class="w-full pb-2 hidden md:block">
+                    <div class="w-full pb-2 hidden md:block" v-if="con.participantOneId != AUTH.user.id">
                         <div class="flex justify-between">
                             <span
                                 class="block ml-2 font-semibold text-gray-600"
@@ -109,7 +123,23 @@ const CreateConversation = (user) => {
                             >{{ con.last_message }}</span
                         >
                     </div>
-                </a>
+                    <div class="w-full pb-2 hidden md:block" v-else>
+                        <div class="flex justify-between">
+                            <span
+                                class="block ml-2 font-semibold text-gray-600"
+                                >{{ con.participantTwo }}</span
+                            >
+                            <span
+                                class="block ml-2 text-sm text-gray-600"
+                                >25 minutes</span
+                            >
+                        </div>
+                        <span
+                            class="block ml-2 text-sm text-gray-600"
+                            >{{ con.last_message }}</span
+                        >
+                    </div>
+                </Link>
             </li>
         </ul>
     </div>

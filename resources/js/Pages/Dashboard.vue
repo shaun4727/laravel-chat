@@ -2,8 +2,18 @@
 import Nav from '@/Components/Chat/Nav.vue';
 import Sidebar from '@/Components/Chat/Sidebar.vue';
 import Conversation from '@/Components/Chat/Conversation.vue';
+import {computed,ref,onMounted,defineExpose } from 'vue';
+import { router } from '@inertiajs/vue3';
 
-defineProps({users:Object,auth:Object,conversation:Object})
+defineProps({users:Object,auth:Object,conversation:Object,messages:Object, singleConversation: Object})
+
+
+
+// update conversation
+const conv = ref({});
+const updateConversation = (conversation)=>{
+    conv.value = conversation;
+}
 
 </script>
 
@@ -16,7 +26,9 @@ defineProps({users:Object,auth:Object,conversation:Object})
                     class="min-w-full border rounded flex lg:grid lg:grid-cols-3"
                 >
                     <!-- Sidebar -->
-                    <Sidebar :USERS="users" :AUTH="auth" :CONVERSATION="conversation"/>
+                    <Sidebar :USERS="users" :AUTH="auth" :CONVERSATION="conversation"
+                        @update-conversation="updateConversation"
+                    />
 
 
 
@@ -24,7 +36,7 @@ defineProps({users:Object,auth:Object,conversation:Object})
 
                     <!-- Conversation -->
 
-                    <Conversation />
+                    <Conversation :CONVERSATION="singleConversation" :AUTH="auth" :MESSAGES="messages"/>
 
 
 

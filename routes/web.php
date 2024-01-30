@@ -32,15 +32,19 @@ use Illuminate\Support\Facades\DB;
 
 Route::get('/dashboard', function () {
     $users = User::all();
-
+    // dd(auth()->user()->id);
     $conversation = DB::table('conversations')
     ->leftJoin('users as participantOneInfo', 'conversations.participantOne', '=', 'participantOneInfo.id')
     ->leftJoin('users as participantTwoInfo', 'conversations.participantTwo', '=', 'participantTwoInfo.id')
     ->select(
         'conversations.*',
         'participantOneInfo.name as participantOne',
-        'participantTwoInfo.name as participantTwo'
+        'participantTwoInfo.name as participantTwo',
+        'participantOneInfo.id as participantOneId',
+        'participantTwoInfo.id as participantTwoId',
     )
+    ->where('participantOne','=',auth()->user()->id)
+    ->orWhere('participantTwo','=',auth()->user()->id)
     ->get();
 
 
@@ -52,6 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/conversation',[ConversationController::class,'store'])->name('conversation.store');
+    Route::post('/message',[ConversationController::class,'storeMessage']);
+    Route::get('/messages/{id}',[ConversationController::class,'getMessages'])->name('get.messages');
 });
 
 require __DIR__.'/auth.php';
