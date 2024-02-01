@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SendMessageEvent;
 use Illuminate\Http\Request;
 use App\Models\Conversation;
 use App\Models\Messages;
@@ -43,6 +44,7 @@ class ConversationController extends Controller
         $con->save();
 
         Messages::create($validated);
+        broadcast(new SendMessageEvent($validated));
     }
     public function findConversation($array,$id){
         foreach($array as $item){

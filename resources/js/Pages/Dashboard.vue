@@ -15,6 +15,13 @@ const updateConversation = (conversation)=>{
     conv.value = conversation;
 }
 
+onMounted(()=>{
+    window.Echo.channel('MyChannel')
+    .listen('MyWebsocketEvent',(e)=>{
+        console.log(e);
+    });
+})
+
 </script>
 
 <template>

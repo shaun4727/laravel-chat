@@ -1,8 +1,23 @@
 <script setup>
-import {computed,ref,watch} from 'vue';
+import {computed,ref,watch,onMounted} from 'vue';
 import { router } from '@inertiajs/vue3';
+import Echo from 'laravel-echo'
 const props = defineProps({CONVERSATION:Object,MESSAGES:Object,AUTH:Object});
 
+
+// load messages
+const all_msgs = ref([]);
+onMounted(()=>{
+    all_msgs.value= props.MESSAGES;
+
+
+    window.Echo.private(`chats.${props.AUTH.user.id}`)
+        .listen('SendMessageEvent',(event)=>{
+            all_msgs.value.push(event.message);
+        })
+
+
+})
 
 // send message
 const message = ref(null);
@@ -13,12 +28,14 @@ const sendMessage = (con) => {
         receiver: props.AUTH.user.id === con.participantOneId?con.participantTwoId:con.participantOneId,
         message: message.value
     }
+    all_msgs.value.push(msg);
     message.value = '';
     router.post("/message",msg);
 }
 
 
-// load messages
+
+
 
 </script>
 
@@ -43,7 +60,7 @@ const sendMessage = (con) => {
         </div>
         <div class=" relative w-full p-6 overflow-y-auto">
             <ul class="space-y-2">
-                <template v-for="(msg,index) in MESSAGES" :key="index">
+                <template v-for="(msg,index) in all_msgs" :key="index">
                     <li class="flex justify-start" v-if="AUTH.user.id != msg.sender">
                         <div
                             class="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow"
@@ -89,6 +106,7 @@ const sendMessage = (con) => {
                 class="block w-full py-2 pl-4 mx-3 bg-gray-100 focus:ring focus:ring-violet-500 rounded-full outline-none focus:text-gray-700"
                 name="message"
                 v-model="message"
+                @keyup.enter="sendMessage(CONVERSATION)"
                 required
             />
             <button type="submit" @click="sendMessage(CONVERSATION)">

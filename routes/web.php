@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\MyWebsocketEvent;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,11 @@ use Illuminate\Support\Facades\DB;
 Route::get('/dashboard', function () {
     $users = User::all();
     // dd(auth()->user()->id);
+
+
+
+
+
     $conversation = DB::table('conversations')
     ->leftJoin('users as participantOneInfo', 'conversations.participantOne', '=', 'participantOneInfo.id')
     ->leftJoin('users as participantTwoInfo', 'conversations.participantTwo', '=', 'participantTwoInfo.id')
