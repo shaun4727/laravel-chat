@@ -68,6 +68,8 @@ class ConversationController extends Controller
             'participantTwoInfo.name as participantTwo',
             'participantOneInfo.id as participantOneId',
             'participantTwoInfo.id as participantTwoId',
+            'participantTwoInfo.last_activity as participantTwoLastActivity',
+            'participantOneInfo.last_activity as participantOneLastActivity',
         )
         ->where('participantOne','=',auth()->user()->id)
         ->orWhere('participantTwo','=',auth()->user()->id)
