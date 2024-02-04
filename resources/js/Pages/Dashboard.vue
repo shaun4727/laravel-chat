@@ -5,22 +5,38 @@ import Conversation from '@/Components/Chat/Conversation.vue';
 import {computed,ref,onMounted,defineExpose } from 'vue';
 import { router } from '@inertiajs/vue3';
 
-defineProps({users:Object,auth:Object,conversation:Object,messages:Object, singleConversation: Object})
+const props = defineProps({users:Object,auth:Object,conversation:Object,messages:Object, singleConversation: Object})
+
+// update active user
+const all_convs = ref([]);
 
 
 
 // update conversation
 const conv = ref({});
+const newMsg = ref({});
 const updateConversation = (conversation)=>{
     conv.value = conversation;
 }
 
 onMounted(()=>{
-    window.Echo.channel('MyChannel')
-    .listen('MyWebsocketEvent',(e)=>{
-        console.log(e);
-    });
+
+    window.Echo.private(`chats.${props.auth.user.id}`)
+        .listen('SendMessageEvent',(event)=>{
+            newMsg.value = event.message;
+
+
+        })
 })
+
+
+// update sidebar msg
+const last_sidebar_msg = ref({});
+const updateSidebarMsg = (value)=>{
+    last_sidebar_msg.value = value;
+}
+
+
 
 </script>
 
@@ -34,6 +50,7 @@ onMounted(()=>{
                 >
                     <!-- Sidebar -->
                     <Sidebar :USERS="users" :AUTH="auth" :CONVERSATION="conversation"
+                    :NEWMSG="newMsg" :LASTMSG="last_sidebar_msg"
                         @update-conversation="updateConversation"
                     />
 
@@ -43,7 +60,10 @@ onMounted(()=>{
 
                     <!-- Conversation -->
 
-                    <Conversation :CONVERSATION="singleConversation" :AUTH="auth" :MESSAGES="messages"/>
+                    <Conversation :CONVERSATION="singleConversation" :AUTH="auth" :MESSAGES="messages"
+                        @update-sidebar-msg="updateSidebarMsg"
+                        :NEWMSG="newMsg"
+                    />
 
 
 

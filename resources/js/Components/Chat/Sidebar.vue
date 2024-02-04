@@ -1,19 +1,19 @@
 <script setup>
-import {computed,ref} from 'vue';
+import {computed,ref,onMounted,watch} from 'vue';
 import { router,Link } from '@inertiajs/vue3';
-const {USERS,AUTH,CONVERSATION} = defineProps({USERS:Object,AUTH:Object,CONVERSATION:Object})
+const props = defineProps({USERS:Object,AUTH:Object,CONVERSATION:Object,NEWMSG:Object,LASTMSG:Object})
 const emit = defineEmits(['update-conversation']);
 
 // search users in modal
 const searchText = ref(null);
 const filteredUsers = computed(()=>{
           if( searchText.value ) {
-                return USERS.filter( item => Object.entries(item)
+                return props.USERS.filter( item => Object.entries(item)
                                                             .reduce( (result, [, value]) => !(value instanceof Object) ? result += ` ${value}` : result, '')
                                                             .toLowerCase()
                                                             .includes( searchText.value.toLowerCase() ));
             }
-        return USERS
+        return props.USERS
     })
 
 // conversation
@@ -24,10 +24,10 @@ const my_modal_1 = ref(null);
 
 const CreateConversation = (user) => {
     const conversation = {
-        user_id: AUTH.user.id,
+        user_id: props.AUTH.user.id,
         participantOne: user.id,
-        participantTwo: AUTH.user.id,
-        last_message: 'Hi'
+        participantTwo: props.AUTH.user.id,
+        last_message: '..'
     }
     // close modal
     my_modal_1.value.close();
@@ -39,6 +39,86 @@ const CreateConversation = (user) => {
 const updateConversation = (conversation)=>{
     emit('update-conversation',conversation);
 }
+
+//detect active user
+const all_convs = ref([]);
+
+onMounted(()=>{
+    all_convs.value = props.CONVERSATION;
+    setInterval(detectActiveUser,2000);
+});
+// on incoming msg, all_convs is updated
+watch(()=>props.NEWMSG,(newVal)=>{
+
+
+    all_convs.value = all_convs.value?.map(con => {
+                if(con.participantOneId == newVal.sender){
+                    return {
+                        ...con,
+                        participantOneLastActivity: "date "+new Date().toLocaleTimeString("en-US",{hour12:false}),
+                        last_message: newVal.message
+                    }
+                }else if(con.participantTwoId == newVal.sender){
+                    return {
+                        ...con,
+                        participantTwoLastActivity: "date "+new Date().toLocaleTimeString("en-US",{hour12:false}),
+                        last_message: newVal.message
+                    }
+                }else{
+                    return {
+                        ...con
+                    }
+                }
+            })
+},{immediate:true});
+
+
+const detectActiveUser = () => {
+    all_convs.value = all_convs.value?.map(item => {
+        return {
+            ...item,
+            active: activeUser(item)
+        }
+    })
+}
+const activeUser = (con) => {
+    const currentDateTime = new Date();
+    const targetDateTime = new Date();
+    const userTime = props.AUTH.user.id == con.participantOneId?con.participantTwoLastActivity:con.participantOneLastActivity;
+    let time = userTime?.split(' ')[1];
+    const targetTimeParts = time?.split(':');
+    if(targetTimeParts && targetTimeParts.length){
+        targetDateTime.setHours(targetTimeParts[0]);
+        targetDateTime.setMinutes(parseInt(targetTimeParts[1])+2);
+        targetDateTime.setSeconds(targetTimeParts[2]);
+    }
+    if(targetDateTime>=currentDateTime){
+
+        return true;
+    }
+    return false;
+}
+
+// update last msg on user side
+watch(()=>props.LASTMSG,(newVal)=>{
+    all_convs.value = all_convs.value?.map(con => {
+                if(con.participantOneId == newVal.sender){
+                    return {
+                        ...con,
+                        last_message: newVal.message
+                    }
+                }else if(con.participantTwoId == newVal.sender){
+                    return {
+                        ...con,
+                        last_message: newVal.message
+                    }
+                }else{
+                    return {
+                        ...con
+                    }
+                }
+            })
+})
 </script>
 
 
@@ -99,7 +179,7 @@ const updateConversation = (conversation)=>{
             <li>
                 <Link :href="route('get.messages',con.id)"
                     class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none"
-                    v-for="(con,index) in CONVERSATION" :key="index"
+                    v-for="(con,index) in all_convs" :key="index"
                     @click="updateConversation(con)"
                     >
                     <img
@@ -107,6 +187,14 @@ const updateConversation = (conversation)=>{
                         src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg"
                         alt="username"
                     />
+                    <span v-if="con.active"
+                        class="relative w-3 h-3 bg-green-600 rounded-full left-[-5px] top-2"
+                    >
+                    </span>
+                    <span v-else
+                        class="relative w-3 h-3 bg-gray-600 rounded-full left-[-5px] top-2"
+                    >
+                    </span>
                     <div class="w-full pb-2 hidden md:block" v-if="con.participantOneId != AUTH.user.id">
                         <div class="flex justify-between">
                             <span

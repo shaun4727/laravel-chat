@@ -1,8 +1,11 @@
 <script setup>
 import {computed,ref,watch,onMounted} from 'vue';
 import { router } from '@inertiajs/vue3';
+
+
 import Echo from 'laravel-echo'
-const props = defineProps({CONVERSATION:Object,MESSAGES:Object,AUTH:Object});
+const props = defineProps({CONVERSATION:Object,MESSAGES:Object,AUTH:Object,NEWMSG:Object});
+const emit = defineEmits(['update-sidebar-msg']);
 
 
 // load messages
@@ -11,13 +14,18 @@ onMounted(()=>{
     all_msgs.value= props.MESSAGES;
 
 
-    window.Echo.private(`chats.${props.AUTH.user.id}`)
-        .listen('SendMessageEvent',(event)=>{
-            all_msgs.value.push(event.message);
-        })
+
+
 
 
 })
+
+watch(()=>props.NEWMSG,(newVal)=>{
+    if(newVal){
+        all_msgs.value.push(newVal);
+
+    }
+},{immediate:true})
 
 // send message
 const message = ref(null);
@@ -28,6 +36,7 @@ const sendMessage = (con) => {
         receiver: props.AUTH.user.id === con.participantOneId?con.participantTwoId:con.participantOneId,
         message: message.value
     }
+    emit('update-sidebar-msg',msg);
     all_msgs.value.push(msg);
     message.value = '';
     router.post("/message",msg);
@@ -53,14 +62,10 @@ const sendMessage = (con) => {
             <span class="block ml-2 font-bold text-gray-600"
                 >{{ AUTH.user.id == CONVERSATION.participantOneId?CONVERSATION?.participantTwo:CONVERSATION?.participantOne }}</span
             >
-            <span
-                class="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3"
-            >
-            </span>
         </div>
-        <div class=" relative w-full p-6 overflow-y-auto">
-            <ul class="space-y-2">
-                <template v-for="(msg,index) in all_msgs" :key="index">
+        <div class=" relative w-full p-6 overflow-y-auto" v-chat-scroll>
+            <ul class="space-y-2" id="scroll-area">
+                <template v-for="(msg,index) in all_msgs" :key="index" >
                     <li class="flex justify-start" v-if="AUTH.user.id != msg.sender">
                         <div
                             class="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow"
