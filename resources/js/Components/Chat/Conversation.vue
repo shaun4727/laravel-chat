@@ -15,9 +15,6 @@ onMounted(()=>{
 
 
 
-
-
-
 })
 
 watch(()=>props.NEWMSG,(newVal)=>{
@@ -42,6 +39,16 @@ const sendMessage = (con) => {
     router.post("/message",msg);
 }
 
+// listen for typing
+
+const getTypingEvent = () => {
+    // window.Echo.private(`chats.${props.AUTH.user.id}`).whisper('typing',{
+    window.Echo.private(`chats`).whisper("typing",{
+        name: props.AUTH.user.name
+    });
+
+    window.Echo.join("MyChannel").whisper("test","sss");
+}
 
 
 
@@ -54,11 +61,11 @@ const sendMessage = (con) => {
         <div
             class="relative flex items-center p-3 border-b border-gray-300"
         >
-            <img
-                class="object-cover w-10 h-10 rounded-full"
-                src="https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg"
-                alt="username"
-            />
+        <img
+            class="object-cover w-10 h-10 rounded-full"
+            src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg"
+            alt="username"
+        />
             <span class="block ml-2 font-bold text-gray-600"
                 >{{ AUTH.user.id == CONVERSATION.participantOneId?CONVERSATION?.participantTwo:CONVERSATION?.participantOne }}</span
             >
@@ -112,6 +119,7 @@ const sendMessage = (con) => {
                 name="message"
                 v-model="message"
                 @keyup.enter="sendMessage(CONVERSATION)"
+                @keydown = "getTypingEvent"
                 required
             />
             <button type="submit" @click="sendMessage(CONVERSATION)">

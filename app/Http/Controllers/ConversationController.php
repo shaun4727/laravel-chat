@@ -44,7 +44,7 @@ class ConversationController extends Controller
         $con->save();
 
         Messages::create($validated);
-        broadcast(new SendMessageEvent($validated));
+        broadcast(new SendMessageEvent($validated))->toOthers();
     }
     public function findConversation($array,$id){
         foreach($array as $item){

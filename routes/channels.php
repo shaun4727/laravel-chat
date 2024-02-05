@@ -19,7 +19,17 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 
-Broadcast::channel('chats.{receiver}', function ($user,$receiver) {
+Broadcast::channel('chats', function ($user) {
 
-    return $user->id == $receiver;
+    return $user;
+});
+// Broadcast::channel('chats.{receiver}', function ($user,$receiver) {
+
+//     return $user->id == $receiver;
+// });
+
+
+Broadcast::channel('MyChannel', function ($user) {
+
+    return $user;
 });

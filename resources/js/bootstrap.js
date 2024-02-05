@@ -35,8 +35,5 @@ window.Echo = new Echo({
 });
 
 
-window.Echo.channel('MyChannel')
-    .listen('MyWebsocketEvent',(e)=>{
-        console.log(e);
-    });
+
 

@@ -32,6 +32,6 @@ class MyWebsocketEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('MyChannel');
+        return new PresenceChannel('MyChannel');
     }
 }
