@@ -36,8 +36,6 @@ onMounted(()=>{
             newMsg.value = event.message;
 
 
-        }).listenForWhisper('typing',(e)=>{
-            console.log(e);
         })
 
 })

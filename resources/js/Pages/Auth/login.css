@@ -1337,4 +1337,9 @@ select {
     background: #555;
   }
 
-
+  p.typing {
+    position: relative;
+    top: 25px;
+    font-size: 13px;
+    font-weight: 700;
+}

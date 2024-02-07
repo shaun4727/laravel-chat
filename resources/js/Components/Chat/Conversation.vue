@@ -9,12 +9,25 @@ const emit = defineEmits(['update-sidebar-msg']);
 
 // load messages
 const all_msgs = ref([]);
+const typingUser = ref(null);
+const clearInt = ref(null);
+
 onMounted(()=>{
     all_msgs.value= props.MESSAGES;
 
-    window.Echo.join("MyChannel").listenForWhisper("test",Response => {
-        console.log(Response);
-    });
+    // listen to typing event
+    window.Echo.private(`chats.${props.AUTH.user.id}`).listenForWhisper('typing',(e)=>{
+            if(clearInt.value){
+                clearInterval(clearInt.value);
+            }
+            typingUser.value = e.name+" typing...";
+            clearInt.value = setInterval(()=>{
+                typingUser.value = null;
+            },3000);
+        })
+
+
+
 })
 
 watch(()=>props.NEWMSG,(newVal)=>{
@@ -46,8 +59,8 @@ const getTypingEvent = (con) => {
     window.Echo.private(`chats.${props.AUTH.user.id === con.participantOneId?con.participantTwoId:con.participantOneId}`).whisper("typing",{
         name: props.AUTH.user.name
     });
+    // clearInterval(clearInt.value);
 
-    window.Echo.join("MyChannel").whisper("test","sss");
 }
 
 
@@ -90,6 +103,7 @@ const getTypingEvent = (con) => {
                 </template>
 
             </ul>
+            <p class="typing">{{ typingUser }}</p>
         </div>
 
         <div
