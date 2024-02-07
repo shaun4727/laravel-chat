@@ -3,7 +3,6 @@ import {computed,ref,watch,onMounted} from 'vue';
 import { router } from '@inertiajs/vue3';
 
 
-import Echo from 'laravel-echo'
 const props = defineProps({CONVERSATION:Object,MESSAGES:Object,AUTH:Object,NEWMSG:Object});
 const emit = defineEmits(['update-sidebar-msg']);
 
@@ -13,8 +12,9 @@ const all_msgs = ref([]);
 onMounted(()=>{
     all_msgs.value= props.MESSAGES;
 
-
-
+    window.Echo.join("MyChannel").listenForWhisper("test",Response => {
+        console.log(Response);
+    });
 })
 
 watch(()=>props.NEWMSG,(newVal)=>{
@@ -41,9 +41,9 @@ const sendMessage = (con) => {
 
 // listen for typing
 
-const getTypingEvent = () => {
-    // window.Echo.private(`chats.${props.AUTH.user.id}`).whisper('typing',{
-    window.Echo.private(`chats`).whisper("typing",{
+const getTypingEvent = (con) => {
+    // window.Echo.private(`chats`).whisper('typing',{
+    window.Echo.private(`chats.${props.AUTH.user.id === con.participantOneId?con.participantTwoId:con.participantOneId}`).whisper("typing",{
         name: props.AUTH.user.name
     });
 
@@ -119,7 +119,7 @@ const getTypingEvent = () => {
                 name="message"
                 v-model="message"
                 @keyup.enter="sendMessage(CONVERSATION)"
-                @keydown = "getTypingEvent"
+                @keydown = "getTypingEvent(CONVERSATION)"
                 required
             />
             <button type="submit" @click="sendMessage(CONVERSATION)">

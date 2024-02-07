@@ -33,7 +33,7 @@ class SendMessageEvent implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('chats');
-        // return new PrivateChannel('chats.'.$this->message['receiver']);
+        // return new PrivateChannel('chats');
+        return new PrivateChannel('chats.'.$this->message['receiver']);
     }
 }

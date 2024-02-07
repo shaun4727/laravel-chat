@@ -30,17 +30,13 @@ onMounted(()=>{
     // });
 
     // window.Echo.private(`chats.${props.auth.user.id}`)
-    window.Echo.private(`chats`)
+    window.Echo.private(`chats.${props.auth.user.id}`)
 
         .listen('SendMessageEvent',(event)=>{
             newMsg.value = event.message;
 
 
         }).listenForWhisper('typing',(e)=>{
-            console.log(e);
-        })
-
-        window.Echo.join("MyChannel").listenForWhisper("test",(e)=>{
             console.log(e);
         })
 

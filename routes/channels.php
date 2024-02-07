@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Broadcast;
 use App\Models\Messages;
+use Illuminate\Support\Facades\Auth;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -19,14 +21,14 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 
-Broadcast::channel('chats', function ($user) {
+// Broadcast::channel('chats', function ($user) {
 
-    return $user;
-});
-// Broadcast::channel('chats.{receiver}', function ($user,$receiver) {
-
-//     return $user->id == $receiver;
+//     return Auth::check();
 // });
+Broadcast::channel('chats.{receiver}', function () {
+
+    return Auth::check() ;
+});
 
 
 Broadcast::channel('MyChannel', function ($user) {
