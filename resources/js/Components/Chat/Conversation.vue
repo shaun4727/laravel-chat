@@ -1,10 +1,35 @@
 <script setup>
 import {computed,ref,watch,onMounted} from 'vue';
 import { router } from '@inertiajs/vue3';
+import Emoji from './Emoji.vue';
+
+
+// emoji section
+import { Picker, EmojiIndex } from 'emoji-mart-vue-fast/src'
+import data from 'emoji-mart-vue-fast/data/all.json'
+import "emoji-mart-vue-fast/css/emoji-mart.css";
+
+const emojiIndex = ref(null);
+emojiIndex.value = new EmojiIndex(data)
 
 
 const props = defineProps({CONVERSATION:Object,MESSAGES:Object,AUTH:Object,NEWMSG:Object});
 const emit = defineEmits(['update-sidebar-msg']);
+
+const convertEmoji = (emoji) => {
+    if(message.value){
+        message.value += emoji.native;
+    }else{
+        message.value = emoji.native;
+    }
+}
+const viewEmoji = ref(false);
+const toggleEmoji = ()=>{
+    viewEmoji.value = !viewEmoji.value;
+}
+
+// end emoji section
+
 
 
 // load messages
@@ -103,13 +128,24 @@ const getTypingEvent = (con) => {
                 </template>
 
             </ul>
+
+
             <p class="typing">{{ typingUser }}</p>
         </div>
 
+
+<Picker
+        v-if="viewEmoji"
+      :data="emojiIndex"
+      set="facebook"
+      title="Pick your emoji…"
+      emoji="point_up"
+      @select="convertEmoji"
+    />
         <div
             class="flex items-center justify-between w-full p-3 border-t border-gray-300"
         >
-            <button>
+            <button @click="toggleEmoji">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     class="w-6 h-6 text-gray-500"

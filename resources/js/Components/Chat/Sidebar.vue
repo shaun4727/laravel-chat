@@ -102,12 +102,12 @@ const activeUser = (con) => {
 // update last msg on user side
 watch(()=>props.LASTMSG,(newVal)=>{
     all_convs.value = all_convs.value?.map(con => {
-                if(con.participantOneId == newVal.sender){
+                if(con.participantOneId == newVal.receiver){
                     return {
                         ...con,
                         last_message: newVal.message
                     }
-                }else if(con.participantTwoId == newVal.sender){
+                }else if(con.participantTwoId == newVal.receiver){
                     return {
                         ...con,
                         last_message: newVal.message
