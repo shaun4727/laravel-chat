@@ -1343,3 +1343,9 @@ select {
     font-size: 13px;
     font-weight: 700;
 }
+
+.emoji {
+    z-index: 9999;
+    position: absolute;
+    bottom: 72px;
+}

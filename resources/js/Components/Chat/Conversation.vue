@@ -65,16 +65,18 @@ watch(()=>props.NEWMSG,(newVal)=>{
 // send message
 const message = ref(null);
 const sendMessage = (con) => {
-    const msg = {
-        conversation_id : con.id,
-        sender: props.AUTH.user.id,
-        receiver: props.AUTH.user.id === con.participantOneId?con.participantTwoId:con.participantOneId,
-        message: message.value
+    if(message.value){
+        const msg = {
+            conversation_id : con.id,
+            sender: props.AUTH.user.id,
+            receiver: props.AUTH.user.id === con.participantOneId?con.participantTwoId:con.participantOneId,
+            message: message.value
+        }
+        emit('update-sidebar-msg',msg);
+        all_msgs.value.push(msg);
+        message.value = '';
+        router.post("/message",msg);
     }
-    emit('update-sidebar-msg',msg);
-    all_msgs.value.push(msg);
-    message.value = '';
-    router.post("/message",msg);
 }
 
 // listen for typing
@@ -95,7 +97,7 @@ const getTypingEvent = (con) => {
 
 <template>
 <div class="w-full lg:col-span-2 lg:block" >
-    <div class="w-full grid conversation-row-grid" v-if="CONVERSATION?.id">
+    <div class="w-full grid conversation-row-grid show-emoji" v-if="CONVERSATION?.id" @click="viewEmoji = false">
         <div
             class="relative flex items-center p-3 border-b border-gray-300"
         >
@@ -134,18 +136,20 @@ const getTypingEvent = (con) => {
         </div>
 
 
-<Picker
+<div class="emoji">
+    <Picker
         v-if="viewEmoji"
       :data="emojiIndex"
-      set="facebook"
+      set="twitter"
       title="Pick your emoji…"
       emoji="point_up"
       @select="convertEmoji"
     />
+</div>
         <div
             class="flex items-center justify-between w-full p-3 border-t border-gray-300"
         >
-            <button @click="toggleEmoji">
+            <button @click.stop="toggleEmoji">
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     class="w-6 h-6 text-gray-500"
@@ -198,3 +202,4 @@ const getTypingEvent = (con) => {
 <style src="./../../Pages/Auth/login.css" scoped>
 
 </style>
+

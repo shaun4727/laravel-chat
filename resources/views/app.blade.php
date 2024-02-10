@@ -6,12 +6,24 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        <style>
+            body{
+                font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+                font-family: 'Segoe UI Emoji', 'Segoe UI Symbol', 'Segoe UI',
+                    'Apple Color Emoji', 'Twemoji Mozilla', 'Noto Color Emoji', 'EmojiOne Color',
+                    'Android Emoji';
+                word-break: keep-all;
+
+
+            }
+        </style>
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.css" rel="stylesheet" type="text/css" />
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         <script src="https://cdn.tailwindcss.com"></script>
+
         <!-- Scripts -->
         @routes
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
